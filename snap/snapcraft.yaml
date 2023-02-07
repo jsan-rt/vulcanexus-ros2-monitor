@@ -1,0 +1,75 @@
+name: vulcanexus-ros2-monitor-packages # you probably want to 'snapcraft register <name>'
+base: core22 # the base snap is the execution environment for this snap
+version: '1.3.0' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Vulcanexus Fast DDS Monitor # 79 char long summary
+description: |
+  eProsima Fast DDS Monitor is a graphical desktop application aimed at monitoring DDS environments deployed using the
+  eProsima Fast DDS library. Thus, the user can monitor in real time the status of publication/subscription
+  communications between DDS entities. They can also choose from a wide variety of communication parameters
+  to be measured (latency, throughput, packet loss, etc.), as well as record and compute in real time statistical
+  measurements on these parameters (mean, variance, standard deviation, etc.).
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+architectures:
+  - build-on: amd64
+
+package-repositories:
+- components: [main]
+  formats: [deb]
+  key-id: C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+  key-server: keyserver.ubuntu.com
+  suites: [jammy]
+  type: apt
+  url: http://repo.ros2.org/ubuntu/main
+
+- components: [main]
+  formats: [deb]
+  key-id: B005A8A0B1E02E44C9BEA1CDEE16C127A4462AA8
+  suites: [jammy]
+  type: apt
+  url: http://repo.vulcanexus.org/debian
+
+parts:
+  desktop-helpers:
+    plugin: make 
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    make-parameters: ["FLAVOR=qt5"]
+    build-packages:
+      - build-essential
+      - qtbase5-dev
+      - dpkg-dev
+    stage-packages:
+      - libxkbcommon0
+      - fonts-ubuntu
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - libgtk2.0-0
+      - libqt5svg5
+      - locales-all
+      - xdg-user-dirs
+      - fcitx-frontend-qt5
+  fastdds-monitor:
+    plugin: dump 
+    source: snap/local
+    organize:
+      entrypoint.sh: bin/
+
+    stage-packages: 
+    - vulcanexus-humble-fastdds-monitor
+
+apps:
+  vulcanexus-ros2-monitor-packages:
+    command: opt/vulcanexus/humble/bin/fastdds_monitor
+    command-chain: ['bin/entrypoint.sh', 'bin/desktop-launch']
+    plugs: [opengl, wayland, home, desktop, desktop-launch, x11, network, network-bind]
+    environment:
+      LC_ALL: en_US.UTF-8
+
