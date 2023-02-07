@@ -69,7 +69,7 @@ apps:
   vulcanexus-ros2-monitor-packages:
     command: opt/vulcanexus/humble/bin/fastdds_monitor
     command-chain: ['bin/entrypoint.sh', 'bin/desktop-launch']
-    plugs: [opengl, wayland, home, desktop, desktop-launch, x11, network, network-bind]
+    plugs: [opengl, wayland, home, desktop, x11, network, network-bind]
     environment:
       LC_ALL: en_US.UTF-8
 
